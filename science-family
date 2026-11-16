@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Science Family - Mess Management</title>
+<style>
+*{box-sizing:border-box;font-family:Arial,sans-serif;margin:0;padding:0}
+body{background:#f1f5f9;color:#1e293b;padding-bottom:50px}
+.notice-bar{background:#dc2626;color:#fff;padding:10px 0;display:flex;align-items:center;overflow:hidden;font-weight:bold}
+.notice-title{background:#991b1b;padding:10px 15px;z-index:2;white-space:nowrap}
+.marquee-wrap{width:100%;overflow:hidden;white-space:nowrap}
+.marquee-text{display:inline-block;padding-left:100%;animation:scrollLeft 18s linear infinite}
+@keyframes scrollLeft{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+header{background:#1e3a8a;color:#fff;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+header h1{font-size:22px}
+.login-box{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);padding:6px 10px;border-radius:6px;flex-wrap:wrap}
+.login-box input{width:150px;padding:7px 10px;border:none;border-radius:4px;font-size:14px;color:#000}
+.btn{padding:7px 14px;border:none;border-radius:4px;cursor:pointer;font-weight:bold;font-size:13px}
+.btn-yellow{background:#f59e0b;color:#000}
+.btn-green{background:#16a34a;color:#fff}
+.btn-red{background:#dc2626;color:#fff}
+.btn-blue{background:#2563eb;color:#fff}
+.container{max-width:1100px;margin:20px auto;padding:0 15px}
+.card{background:#fff;border-radius:8px;padding:18px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+h2{color:#1e3a8a;margin-bottom:15px;border-bottom:2px solid #e2e8f0;padding-bottom:8px;font-size:19px}
+.table-wrap{width:100%;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:620px}
+th,td{border:1px solid #cbd5e1;padding:10px;text-align:center;font-size:14px}
+th{background:#1e40af;color:#fff}
+tr:nth-child(even){background:#f8fafc}
+td[contenteditable="true"]{background:#fef9c3;outline:1px dashed #eab308}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:15px}
+.summary-box{background:#eff6ff;border-left:4px solid #2563eb;padding:12px;border-radius:4px}
+.summary-box span{font-size:20px;font-weight:bold;color:#1e3a8a;display:block;margin-top:4px}
+.event-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px}
+.event-card{border:1px solid #cbd5e1;border-radius:6px;padding:15px;background:#f8fafc}
+.admin-panel{background:#fffbeb;border:2px solid #f59e0b;padding:15px;border-radius:8px;margin-bottom:20px}
+.full-input{width:100%;padding:9px;margin:6px 0 12px 0;border:1px solid #cbd5e1;border-radius:4px}
+</style>
+</head>
+<body>
+
+<div class="notice-bar">
+  <div class="notice-title">জরুরি নোটিশ:</div>
+  <div class="marquee-wrap">
+    <div class="marquee-text" id="noticeText">স্বাগতম Science Family মেসে! আগামী ৫ তারিখের মধ্যে সবাই চলতি মাসের মিলের টাকা জমা দেওয়ার জন্য অনুরোধ করা হচ্ছে।</div>
+  </div>
+</div>
+
+<header>
+  <div>
+    <h1>Science Family <span id="syncStatus" style="font-size:12px;background:#16a34a;padding:3px 8px;border-radius:10px;">Live</span></h1>
+    <small>আমাদের মেস ম্যানেজমেন্ট ও হিসাব পোর্টাল</small>
+  </div>
+  <div class="login-box" id="loginForm">
+    <input type="text" id="passInput" placeholder="Admin Password">
+    <button type="button" class="btn btn-yellow" id="loginBtn">Login</button>
+    <span id="loginMsg" style="font-size:12px;color:#fca5a5;font-weight:bold;"></span>
+  </div>
+  <div class="login-box" id="logoutForm" style="display:none;">
+    <span style="font-size:13px;color:#86efac;font-weight:bold;">Admin Active</span>
+    <button type="button" class="btn btn-red" id="logoutBtn">Logout</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="admin-panel" id="adminPanel" style="display:none;">
+    <h3 style="margin-bottom:8px;">অ্যাডমিন কন্ট্রোল প্যানেল</h3>
+    <label><strong>নোটিশ আপডেট করুন:</strong></label>
+    <input type="text" class="full-input" id="noticeInput" placeholder="নতুন নোটিশ লিখুন...">
+    <button type="button" class="btn btn-blue" id="saveNoticeBtn">নোটিশ আপডেট করুন</button>
+    <span id="saveMsg" style="color:green;font-weight:bold;font-size:13px;margin-left:10px;"></span>
+  </div>
+
+  <div class="card">
+    <h2>মেসের মাসিক হিসাব (Excel Sheet)</h2>
+    <div class="summary-grid">
+      <div class="summary-box">মোট মিল<span id="sumMeal">0</span></div>
+      <div class="summary-box">মোট বাজার খরচ (৳)<span id="sumBazar">0.00</span></div>
+      <div class="summary-box">বর্তমান মিল রেট (৳)<span id="mealRate">0.00</span></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>সদস্যের নাম</th>
+            <th>মোট মিল</th>
+            <th>বাজার খরচ (৳)</th>
+            <th>জমা টাকা (৳)</th>
+            <th>মোট মিল খরচ (৳)</th>
+            <th>পাবো / দেবো (৳)</th>
+            <th id="actionHeader" style="display:none;">অ্যাকশন</th>
+          </tr>
+        </thead>
+        <tbody id="messTbody"></tbody>
+      </table>
+    </div>
+    <div id="tableBtns" style="display:none;margin-top:15px;gap:10px;flex-wrap:wrap;align-items:center;">
+      <button type="button" class="btn btn-green" id="addMemberBtn">+ নতুন সদস্য যোগ করুন</button>
+      <button type="button" class="btn btn-blue" id="saveTableBtn">হিসাব সেভ করুন</button>
+      <span id="tableSaveMsg" style="color:green;font-weight:bold;font-size:13px;"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>ইভেন্ট ও কাজ বণ্টন (Event Management)</h2>
+    <div id="eventForm" style="display:none;background:#f1f5f9;padding:15px;border-radius:6px;margin-bottom:15px;">
+      <h4 style="margin-bottom:8px;">নতুন ইভেন্ট / কাজ যুক্ত করুন</h4>
+      <input type="text" class="full-input" id="evTitle" placeholder="ইভেন্টের নাম (যেমন: মেস পিকনিক)">
+      <input type="text" class="full-input" id="evTask" placeholder="কাজের নাম (যেমন: বাজার ও রান্না)">
+      <input type="text" class="full-input" id="evMember" placeholder="দায়িত্বপ্রাপ্ত সদস্যদের নাম">
+      <button type="button" class="btn btn-green" id="addEventBtn">+ কাজ যুক্ত করুন</button>
+    </div>
+    <div class="event-grid" id="eventGrid"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var ADMIN_PASS = "20021Ri@";
+  var CLOUD_URL = "https://kvdb.io";
+  var isAdmin = false;
+
+  var db = {
+    notice: "স্বাগতম Science Family মেসে! আগামী ৫ তারিখের মধ্যে সবাই চলতি মাসের মিলের টাকা জমা দেওয়ার জন্য অনুরোধ করা হচ্ছে।",
+    members: [
+      { name: "তানভীর আহমেদ", meal: 25, bazar: 1200, deposit: 2000 },
+      { name: "সাকিব আল হাসান", meal: 28, bazar: 1500, deposit: 2500 },
+      { name: "মাহমুদুল হাসান", meal: 22, bazar: 800, deposit: 1500 }
+    ],
+    events: [
+      { title: "মেস পিকনিক ২০২৬", task: "কাঁচাবাজার ও মাংস কেনা", member: "তানভীর ও সাকিব" },
+      { title: "মেস পিকনিক ২০২৬", task: "সাজসজ্জা ও সাউন্ড সিস্টেম", member: "মাহমুদুল ও নাফিস" }
+    ]
+  };
+
+  function loadLocal() {
+    try {
+      var s = localStorage.getItem("sf_mess_data_v3");
+      if (s) db = JSON.parse(s);
+    } catch (e) {}
+  }
+
+  function syncCloudSave() {
+    try { localStorage.setItem("sf_mess_data_v3", JSON.stringify(db)); } catch (e) {}
+    fetch(CLOUD_URL, {
+      method: "POST",
+      body: JSON.stringify(db)
+    }).catch(function() {});
+  }
+
+  function syncCloudLoad() {
+    fetch(CLOUD_URL + "?t=" + Date.now())
+      .then(function(res) { return res.ok ? res.json() : null; })
+      .then(function(data) {
+        if (data && data.members) {
+          db = data;
+          try { localStorage.setItem("sf_mess_data_v3", JSON.stringify(db)); } catch (e) {}
+          render();
+        }
+      })
+      .catch(function() {});
+  }
+
+  function render() {
+    document.getElementById("noticeText").textContent = db.notice;
+    var tbody = document.getElementById("messTbody");
+    tbody.innerHTML = "";
+    var totalMeal = 0, totalBazar = 0;
+
+    for (var i = 0; i < db.members.length; i++) {
+      totalMeal += Number(db.members[i].meal) || 0;
+      totalBazar += Number(db.members[i].bazar) || 0;
+    }
+
+    var rate = totalMeal > 0 ? (totalBazar / totalMeal) : 0;
+    document.getElementById("sumMeal").textContent = totalMeal;
+    document.getElementById("sumBazar").textContent = totalBazar.toFixed(2);
+    document.getElementById("mealRate").textContent = rate.toFixed(2);
+
+    db.members.forEach(function(m, idx) {
+      var cost = m.meal * rate;
+      var diff = m.deposit - cost;
+      var tr = document.createElement("tr");
+
+      var fields = ["name", "meal", "bazar", "deposit"];
+      fields.forEach(function(f) {
+        var td = document.createElement("td");
+        td.textContent = m[f];
+        if (isAdmin) {
+          td.contentEditable = "true";
+          td.onblur = function() {
+            db.members[idx][f] = (f === "name") ? td.textContent.trim() : (parseFloat(td.textContent) || 0);
+            render();
+          };
+        }
+        tr.appendChild(td);
+      });
+
+      var tdCost = document.createElement("td");
+      tdCost.textContent = cost.toFixed(2);
+      tr.appendChild(tdCost);
+
+      var tdDiff = document.createElement("td");
+      tdDiff.style.fontWeight = "bold";
+      tdDiff.style.color = diff >= 0 ? "green" : "red";
+      tdDiff.textContent = (diff >= 0 ? "+" : "") + diff.toFixed(2) + (diff >= 0 ? " (পাবে)" : " (দিবে)");
+      tr.appendChild(tdDiff);
+
+      if (isAdmin) {
+        var tdAct = document.createElement("td");
+        var delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "btn btn-red";
+        delBtn.style.padding = "4px 8px";
+        delBtn.style.fontSize = "12px";
+        delBtn.textContent = "মুছুন";
+        delBtn.onclick = function() {
+          db.members.splice(idx, 1);
+          syncCloudSave();
+          render();
+        };
+        tdAct.appendChild(delBtn);
+        tr.appendChild(tdAct);
+      }
+
+      tbody.appendChild(tr);
+    });
+
